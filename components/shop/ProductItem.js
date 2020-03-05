@@ -59,9 +59,11 @@ const styles = StyleSheet.create({
     },
     productTitle: {
         fontSize: 18,
-        marginVertical: 4
+        marginVertical: 0,
+        fontFamily: 'open-sans-bold',
     },
     productPrice: {
+        fontFamily: 'open-sans',
         fontSize: 14,
         color: '#888'
     },
