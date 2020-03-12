@@ -3,12 +3,16 @@ import { View, Text, StyleSheet, Button, Platform, FlatList } from 'react-native
 
 
 import Colors from '../../constants/Colors';
-import { useSelector } from 'react-redux';
-import { BorderlessButton } from 'react-native-gesture-handler';
+import { useSelector, useDispatch } from 'react-redux';
 import CartItem from '../../components/shop/CartItem';
+import * as cartActions from '../../store/actions/cart';
+import * as orderActions from '../../store/actions/orders';
+
 
 
 const CartScreen = props => {
+
+    const dispatch = useDispatch();
 
     const cartTotalAmount = useSelector(state => state.cart.totalAmount);
     const cartItems = useSelector(state => {
@@ -19,19 +23,26 @@ const CartScreen = props => {
                 productId: key,
                 productTitle: state.cart.items[key].productTitle,
                 producPrice: state.cart.items[key].productPrice,
-                quntity: state.cart.items[key].quantity,
+                quantity: state.cart.items[key].quantity,
                 sum: state.cart.items[key].sum,
             });
         }
 
-        return transformedCartItems;
+        return transformedCartItems.sort((a, b) => a.productId > b.productId ? 1 : -1);
     });
 
     return (
         <View style={styles.screen}>
             <View style={styles.summary}>
                 <Text style={styles.summaryText}>Total: <Text style={styles.summaryAmount}>${cartTotalAmount.toFixed(2)}</Text> </Text>
-                <Button title='Order Now' color={Colors.accent} disabled={cartItems.length === 0} />
+                <Button title='Order Now'
+                    color={Colors.accent}
+                    disabled={cartItems.length === 0}
+                    onPress={() => {
+                        dispatch(orderActions.addOrder(cartItems, cartTotalAmount))
+                    }
+                    }
+                />
             </View>
 
             <FlatList
@@ -40,11 +51,12 @@ const CartScreen = props => {
                 keyExtractor={item => item.productId}
                 renderItem={itemData => (
                     <CartItem
+                        deletable
                         title={itemData.item.productTitle}
-                        quantity={itemData.item.quntity}
+                        quantity={itemData.item.quantity}
                         amount={itemData.item.sum}
                         onRemove={() => {
-                            console.warn("Delete the Product" + itemData.item.productTitle)
+                            dispatch(cartActions.removeFromCart(itemData.item.productId))
                         }}
                     />
                 )} />
@@ -52,6 +64,10 @@ const CartScreen = props => {
         </View>
     );
 }
+
+CartScreen.navigationOptions = {
+    headerTitle: "Your Cart"
+};
 
 const styles = StyleSheet.create({
     screen: {
