@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button, Platform, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Button, Platform, FlatList, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
@@ -20,6 +20,17 @@ const UserProductsScreen = props => {
         });
     }
 
+    const deleteHandler = (id) => {
+        Alert.alert('Are you sure?', 'Do you want to delete this product', [
+            { text: 'No', style: 'default' },
+            {
+                text: 'Yes', style: 'destructive', onPress:
+                    () => {
+                        dispatch(productsActions.deleteProduct(id));
+                    }
+            }
+        ])
+    }
 
     return (<FlatList
         data={products}
@@ -41,11 +52,7 @@ const UserProductsScreen = props => {
                     } />
                 <Button color={Colors.primary}
                     title="Delete"
-                    onPress={
-                        () => {
-                            dispatch(productsActions.deleteProduct(itemData.item.id));
-                        }
-                    } />
+                    onPress={deleteHandler.bind(this, itemData.item.id)} />
             </ProductItem>
         )} />);
 }
